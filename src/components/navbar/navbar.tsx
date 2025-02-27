@@ -1,4 +1,4 @@
-import { Book, Menu, Sunset, Trees, Zap } from "lucide-react";
+import { Menu, Trees } from "lucide-react";
 
 import {
   Accordion,
@@ -65,27 +65,7 @@ const Navbar = ({
     alt: "logo",
     title: "Bard",
   },
-  menu = [
-    { title: "Home", url: router.routesByPath["/"].fullPath },
-    {
-      title: "Products",
-      url: "#",
-      items: [
-        {
-          title: "Blog",
-          description: "The latest industry news, updates, and info",
-          icon: <Book className="size-5 shrink-0" />,
-          url: router.routesByPath["/test"].fullPath,
-        },
-        {
-          title: "Company",
-          description: "Our mission is to innovate and empower the world",
-          icon: <Trees className="size-5 shrink-0" />,
-          url: router.routesByPath["/"].fullPath,
-        },
-      ],
-    },
-  ],
+  menu = [{ title: "Accueil", url: router.routesByPath["/"].fullPath }],
   mobileExtraLinks = [
     { name: "Press", url: "#" },
     { name: "Contact", url: "#" },
@@ -102,10 +82,10 @@ const Navbar = ({
       <div className="container">
         <nav className="hidden justify-between lg:flex">
           <div className="flex items-center gap-6">
-            <a href={logo.url} className="flex items-center gap-2">
+            <Link to={logo.url} className="flex items-center gap-2">
               <img src={logo.src} className="w-8" alt={logo.alt} />
               <span className="text-lg font-semibold">{logo.title}</span>
-            </a>
+            </Link>
             <div className="flex items-center">
               <NavigationMenu>
                 <NavigationMenuList>
@@ -221,13 +201,13 @@ const renderMenuItem = (item: MenuItem) => {
   }
 
   return (
-    <a
+    <Link
       key={item.title}
       className="group inline-flex h-10 w-max items-center justify-center rounded-md bg-background px-4 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-accent-foreground"
-      href={item.url}
+      to={item.url}
     >
       {item.title}
-    </a>
+    </Link>
   );
 };
 

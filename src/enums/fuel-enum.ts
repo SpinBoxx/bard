@@ -1,5 +1,5 @@
 export enum CarFuel {
-  OIL,
-  DIESEL,
-  ETHANOL,
+  OIL = "Essence",
+  DIESEL = "Diesel",
+  ETHANOL = "Ethanol",
 }

@@ -1,68 +1,33 @@
-"use server";
-
 import { constants } from "@/constants/constants";
 import { CarFuel } from "@/enums/fuel-enum";
 import { ActionError, createAction } from "@/lib/create-action";
 import { getFuelPriceSchema } from "@/schemas/get-fuel-schema";
+import { FuelResponseApiType } from "@/types/api-responses/fuel-response-api";
 import queryString from "query-string";
 
-type ApiResponse = {
-  id: number;
-  Brand: {
-    id: number;
-    name: string;
-    short_name: string;
-    nb_stations: number;
-  };
-  type: string;
-  name: string;
-  Address: {
-    street_line: string;
-    city_line: string;
-  };
-  Fuels: Array<{
-    id: number;
-    type: string;
-    name: string;
-    short_name: string;
-    picto: string;
-    Update: {
-      value: string;
-      text: string;
-    };
-    rupture: boolean;
-    Price: {
-      value: number;
-      text: string;
-    };
-  }>;
-  LastUpdate: {
-    value: string;
-    text: string;
-  };
-};
-
-export const getFuelPrice = createAction
+export const getFuelPriceAction = createAction
   .schema(getFuelPriceSchema)
   .action(async ({ parsedInput: { fuel } }) => {
-    const defaultFuels = ["Gazole", "E10", "E85"];
-
     const selectMap = new Map();
     const whereMap = new Map();
     const { fuelApi } = constants.api;
 
-    defaultFuels.forEach((fuel) => {
-      selectMap.set("select", generateSqlClause("SELECT", defaultFuels));
-    });
+    selectMap.set(
+      "select",
+      generateSqlClause("SELECT", "_prix", [translateFuelsForApi(fuel)])
+    );
 
-    defaultFuels.forEach((fuel) => {
-      whereMap.set("where", generateSqlClause("WHERE", defaultFuels));
-    });
+    whereMap.set(
+      "where",
+      generateSqlClause("WHERE", "carburants_disponibles", [
+        translateFuelsForApi(fuel),
+      ]) +
+        "AND " +
+        generateSqlClause("WHERE", "ville", ["Nantes"])
+    );
 
     const paramsSelect = queryString.stringify(Object.fromEntries(selectMap));
     const paramsWhere = queryString.stringify(Object.fromEntries(whereMap));
-
-    console.log(queryString.stringify(Object.fromEntries(selectMap)));
 
     const response = await fetch(
       `${fuelApi}?${paramsSelect}&${paramsWhere}&limit=1`,
@@ -77,18 +42,20 @@ export const getFuelPrice = createAction
       throw new ActionError("Impossible de récupérer le prix du carburant.");
     }
 
-    const data: ApiResponse = await response.json();
+    const data: FuelResponseApiType = await response.json();
+    console.log(data);
+    const res: { prix: number } = {
+      prix: data.results[0][`${translateFuelsForApi(fuel).toLowerCase()}_prix`],
+    };
 
-    const currentFuel = data.Fuels.find(
-      (_fuel) =>
-        _fuel.short_name.toLowerCase() ===
-        translateFuelsForApi(fuel).toLowerCase()
-    );
-
-    return currentFuel?.Price;
+    return res;
   });
 
-const generateSqlClause = (clause: "SELECT" | "WHERE", data: string[]) => {
+const generateSqlClause = (
+  clause: "SELECT" | "WHERE",
+  key: "carburants_disponibles" | "ville" | "_prix",
+  data: string[]
+) => {
   let i = 0;
   let res = "";
 
@@ -96,7 +63,7 @@ const generateSqlClause = (clause: "SELECT" | "WHERE", data: string[]) => {
     res = data.reduce((acc, curr) => {
       i++;
       return acc.concat(
-        `${curr.toLowerCase()}_prix${i !== data.length ? "," : ""}`
+        `${curr.toLowerCase()}${key}${i !== data.length ? "," : ""}`
       );
     }, "");
   }
@@ -105,7 +72,7 @@ const generateSqlClause = (clause: "SELECT" | "WHERE", data: string[]) => {
     res = data.reduce((acc, curr) => {
       i++;
       return acc.concat(
-        `carburants_disponibles like "${curr}" ${i !== data.length ? "AND " : ""}`
+        `${key} like "${curr}" ${i !== data.length ? "AND " : ""}`
       );
     }, "");
   }
@@ -116,10 +83,10 @@ const generateSqlClause = (clause: "SELECT" | "WHERE", data: string[]) => {
 const translateFuelsForApi = (fuel: CarFuel) => {
   switch (fuel) {
     case CarFuel.OIL:
-      return "Gazole";
+      return "E10";
     case CarFuel.DIESEL:
-      return "E85";
+      return "Gazole";
     case CarFuel.ETHANOL:
-      return "SP95";
+      return "E85";
   }
 };

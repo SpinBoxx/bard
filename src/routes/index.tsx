@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import "../index.css";
-import { HeroHighlight, Highlight } from "@/components/framer/hero-highlight";
 import { getFuelPrice } from "@/actions/get-fuel-price-action";
 import { CarFuel } from "@/enums/fuel-enum";
 import HeroSection from "@/components/hero";
-import { DataTable } from "@/components/tables/travels-table/data-table";
 
 export const Route = createFileRoute("/")({
   component: Index,

@@ -3,7 +3,7 @@ import { CarFuel } from "@/enums/fuel-enum";
 import { TollTicket } from "./toll-ticket";
 
 export type Travel = {
-  id: number;
+  id: string;
   name: string;
   competition: Competition;
   startDate: Date;
@@ -17,6 +17,5 @@ export type Travel = {
   carFuel: CarFuel;
   createdAt: Date;
   updated: Date;
-  userId: string;
   tollTickets: TollTicket[];
 };

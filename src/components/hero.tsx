@@ -3,6 +3,7 @@ import HeroCard from "./cards/hero-card";
 import { HeroHighlight, Highlight } from "./framer/hero-highlight";
 import { Button } from "./ui/button";
 import { AnimatedText } from "./ui/animated-underline";
+import { Link } from "@tanstack/react-router";
 
 const HeroSection = () => {
   const heroCards = [
@@ -41,9 +42,12 @@ const HeroSection = () => {
           péages et organisez facilement les déplacements de votre équipe.
         </p>
         <div className="flex items-center gap-6 mt-10">
-          <Button size="xl" className="">
-            Ajouter un trajet
-          </Button>
+          <Link to="/ajouter-un-trajet">
+            <Button size="xl" className="">
+              Ajouter un trajet
+            </Button>
+          </Link>
+
           <Button variant="outline" size="xl">
             Consulter mes trajets
           </Button>
