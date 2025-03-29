@@ -12,6 +12,7 @@
 
 import { Route as rootRoute } from './routes/__root'
 import { Route as IndexImport } from './routes/index'
+import { Route as MesTrajetsIndexImport } from './routes/mes-trajets/index'
 import { Route as AjouterUnTrajetIndexImport } from './routes/ajouter-un-trajet/index'
 
 // Create/Update Routes
@@ -19,6 +20,12 @@ import { Route as AjouterUnTrajetIndexImport } from './routes/ajouter-un-trajet/
 const IndexRoute = IndexImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRoute,
+} as any)
+
+const MesTrajetsIndexRoute = MesTrajetsIndexImport.update({
+  id: '/mes-trajets/',
+  path: '/mes-trajets/',
   getParentRoute: () => rootRoute,
 } as any)
 
@@ -46,6 +53,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AjouterUnTrajetIndexImport
       parentRoute: typeof rootRoute
     }
+    '/mes-trajets/': {
+      id: '/mes-trajets/'
+      path: '/mes-trajets'
+      fullPath: '/mes-trajets'
+      preLoaderRoute: typeof MesTrajetsIndexImport
+      parentRoute: typeof rootRoute
+    }
   }
 }
 
@@ -54,36 +68,41 @@ declare module '@tanstack/react-router' {
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/ajouter-un-trajet': typeof AjouterUnTrajetIndexRoute
+  '/mes-trajets': typeof MesTrajetsIndexRoute
 }
 
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/ajouter-un-trajet': typeof AjouterUnTrajetIndexRoute
+  '/mes-trajets': typeof MesTrajetsIndexRoute
 }
 
 export interface FileRoutesById {
   __root__: typeof rootRoute
   '/': typeof IndexRoute
   '/ajouter-un-trajet/': typeof AjouterUnTrajetIndexRoute
+  '/mes-trajets/': typeof MesTrajetsIndexRoute
 }
 
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/ajouter-un-trajet'
+  fullPaths: '/' | '/ajouter-un-trajet' | '/mes-trajets'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/ajouter-un-trajet'
-  id: '__root__' | '/' | '/ajouter-un-trajet/'
+  to: '/' | '/ajouter-un-trajet' | '/mes-trajets'
+  id: '__root__' | '/' | '/ajouter-un-trajet/' | '/mes-trajets/'
   fileRoutesById: FileRoutesById
 }
 
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AjouterUnTrajetIndexRoute: typeof AjouterUnTrajetIndexRoute
+  MesTrajetsIndexRoute: typeof MesTrajetsIndexRoute
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AjouterUnTrajetIndexRoute: AjouterUnTrajetIndexRoute,
+  MesTrajetsIndexRoute: MesTrajetsIndexRoute,
 }
 
 export const routeTree = rootRoute
@@ -97,7 +116,8 @@ export const routeTree = rootRoute
       "filePath": "__root.tsx",
       "children": [
         "/",
-        "/ajouter-un-trajet/"
+        "/ajouter-un-trajet/",
+        "/mes-trajets/"
       ]
     },
     "/": {
@@ -105,6 +125,9 @@ export const routeTree = rootRoute
     },
     "/ajouter-un-trajet/": {
       "filePath": "ajouter-un-trajet/index.tsx"
+    },
+    "/mes-trajets/": {
+      "filePath": "mes-trajets/index.tsx"
     }
   }
 }

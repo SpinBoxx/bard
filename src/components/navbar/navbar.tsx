@@ -22,7 +22,7 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { JSX } from "react";
+import type { JSX } from "react";
 import { router } from "@/main";
 import { Link } from "@tanstack/react-router";
 
@@ -65,7 +65,14 @@ const Navbar = ({
     alt: "logo",
     title: "Bard",
   },
-  menu = [{ title: "Accueil", url: router.routesByPath["/"].fullPath }],
+  menu = [
+    { title: "Accueil", url: router.routesByPath["/"].fullPath },
+    {
+      title: "Ajouter un trajet",
+      url: router.routesByPath["/ajouter-un-trajet"].fullPath,
+    },
+    { title: "Mes trajets", url: router.routesByPath["/mes-trajets"].fullPath },
+  ],
   mobileExtraLinks = [
     { name: "Press", url: "#" },
     { name: "Contact", url: "#" },

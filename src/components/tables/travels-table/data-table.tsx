@@ -3,9 +3,9 @@
 import * as React from "react";
 import {
   ColumnDef,
-  ColumnFiltersState,
-  SortingState,
-  VisibilityState,
+  type ColumnFiltersState,
+  type SortingState,
+  type VisibilityState,
   flexRender,
   getCoreRowModel,
   getFacetedRowModel,
@@ -31,7 +31,7 @@ import { columns } from "./columns";
 import { DataTableToolbar } from "./data-table-toolbar";
 // import { DataTableToolbar } from "./data-table-toolbar";
 
-export function DataTable() {
+export function TravelsDataTable() {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});

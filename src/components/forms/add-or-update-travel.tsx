@@ -58,8 +58,6 @@ const AddOrUpdateTravelForm = () => {
         toast.error(response.serverError);
       }
       if (response?.data) {
-        console.log(response?.data);
-
         return response.data.prix;
       }
     },
@@ -92,9 +90,9 @@ const AddOrUpdateTravelForm = () => {
 
   const { execute, isExecuting } = useAction(addOrUpdateTravelAction, {
     onSuccess: (response) => {
-      if (response.data) {
+      if (response.data?.ok) {
         console.log("SUCCESS");
-        toast.success("Le travel a bien été ajouté !");
+        toast.success("Le trajet a bien été ajouté !");
         addTravel(response.data.travel);
       }
     },
