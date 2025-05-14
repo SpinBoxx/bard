@@ -6,9 +6,13 @@ import { z } from "zod";
 
 export const addOrUpdateTravelSchema = z.object({
   id: z.string().optional(),
-  name: z.string({
-    required_error: "Requis",
-  }),
+  name: z
+    .string({
+      required_error: "Requis",
+    })
+    .min(1, {
+      message: "Le nom est requis",
+    }),
   // Criterium, championship,etc.
   competition: z.nativeEnum(Competition),
   startDate: z.date({
@@ -16,14 +20,22 @@ export const addOrUpdateTravelSchema = z.object({
   }),
   endDate: z.date().optional(),
   isReturnTrip: z.boolean().default(false),
-  startingAddress: z.string({
-    required_error: "Requis",
-  }),
-
-  destinationAddress: z.string({
-    required_error: "Requis",
-  }),
-
+  startingAddress: z
+    .string({
+      required_error: "Requis",
+    })
+    .regex(constants.frenchAddressRegex, {
+      message:
+        "L'adresse de départ n'est pas valide, elle doit être au format \"numéro de rue, code postal, ville\". Exemple: 12 rue de la paix 75002 Paris",
+    }),
+  destinationAddress: z
+    .string({
+      required_error: "Requis",
+    })
+    .regex(constants.frenchAddressRegex, {
+      message:
+        "L'adresse de destination n'est pas valide, elle doit être au format \"numéro de rue, code postal, ville\". Exemple: 12 rue de la paix 75002 Paris",
+    }),
   tollPrice: z
     .union([
       z.number().optional(),

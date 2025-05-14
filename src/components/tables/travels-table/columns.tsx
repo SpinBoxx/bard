@@ -9,32 +9,42 @@ import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { Euro } from "lucide-react";
 import { RowActions } from "./row-actions";
+import { cn, parseAddress } from "@/lib/utils";
+import { constants } from "@/constants/constants";
+import { CarFuel } from "@/enums/fuel-enum";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { PropsWithChildren } from "react";
 
 export const columns: ColumnDef<Travel>[] = [
-  {
-    id: "select",
-    header: ({ table }) => (
-      <Checkbox
-        checked={
-          table.getIsAllPageRowsSelected() ||
-          (table.getIsSomePageRowsSelected() && "indeterminate")
-        }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-        aria-label="Select all"
-        className="translate-y-[2px]"
-      />
-    ),
-    cell: ({ row }) => (
-      <Checkbox
-        checked={row.getIsSelected()}
-        onCheckedChange={(value) => row.toggleSelected(!!value)}
-        aria-label="Select row"
-        className="translate-y-[2px]"
-      />
-    ),
-    enableSorting: false,
-    enableHiding: false,
-  },
+  // {
+  //   id: "select",
+  //   header: ({ table }) => (
+  //     <Checkbox
+  //       checked={
+  //         table.getIsAllPageRowsSelected() ||
+  //         (table.getIsSomePageRowsSelected() && "indeterminate")
+  //       }
+  //       onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+  //       aria-label="Select all"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   cell: ({ row }) => (
+  //     <Checkbox
+  //       checked={row.getIsSelected()}
+  //       onCheckedChange={(value) => row.toggleSelected(!!value)}
+  //       aria-label="Select row"
+  //       className="translate-y-[2px]"
+  //     />
+  //   ),
+  //   enableSorting: false,
+  //   enableHiding: false,
+  // },
   {
     accessorKey: "startDate",
     header: ({ column }) => (
@@ -50,6 +60,11 @@ export const columns: ColumnDef<Travel>[] = [
       );
     },
     filterFn: "includesString",
+    sortingFn: (a, b) => {
+      const dateA = new Date(a.getValue("startDate") as Date);
+      const dateB = new Date(b.getValue("startDate") as Date);
+      return dateA.getTime() - dateB.getTime();
+    },
   },
   {
     accessorKey: "competition",
@@ -84,6 +99,20 @@ export const columns: ColumnDef<Travel>[] = [
     filterFn: "includesString",
   },
   {
+    accessorKey: "travel",
+    header: () => <span>Trajet</span>,
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <span>
+            {`${parseAddress(row.original.startingAddress).city} -> ${parseAddress(row.original.destinationAddress).city}`}
+          </span>
+        </div>
+      );
+    },
+    filterFn: "includesString",
+  },
+  {
     accessorKey: "distance",
     header: ({ column }) => (
       <DataTableColumnHeader column={column} title="Distance" />
@@ -94,6 +123,29 @@ export const columns: ColumnDef<Travel>[] = [
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("distance")}
           </span>
+        </div>
+      );
+    },
+    filterFn: "includesString",
+  },
+  {
+    accessorKey: "carFuel",
+    header: ({ column }) => (
+      <FuelTypeTooltip>
+        <span>Carburant</span>
+      </FuelTypeTooltip>
+    ),
+    cell: ({ row }) => {
+      return (
+        <div className="flex space-x-2">
+          <Badge
+            className={cn(
+              "max-w-[200px] truncate font-medium",
+              constants.carFuelTypes[row.original.carFuel].bgColor
+            )}
+          >
+            {row.getValue("carFuel")}
+          </Badge>
         </div>
       );
     },
@@ -122,3 +174,16 @@ export const columns: ColumnDef<Travel>[] = [
     cell: ({ row }) => <RowActions row={row} />,
   },
 ];
+
+const FuelTypeTooltip = ({ children }: PropsWithChildren) => {
+  return (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>{children}</TooltipTrigger>
+        <TooltipContent>
+          <p>Basé sur une consommation de 8L au 100</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+};

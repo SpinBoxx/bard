@@ -34,8 +34,11 @@ import LoaderDotSpinner from "../loaders/loader-dot-spinner";
 import { getFuelPriceAction } from "@/actions/get-fuel-price-action";
 import { addOrUpdateTravelAction } from "@/actions/travel/add-or-update-travel";
 import { useTravelStore } from "@/stores/use-travels-store";
+import { wait } from "@/lib/utils";
+import { useState } from "react";
 
 const AddOrUpdateTravelForm = () => {
+  const [isRequestLoading, setIsRequestLoading] = useState(false);
   const form = useForm<z.infer<typeof addOrUpdateTravelSchema>>({
     resolver: zodResolver(addOrUpdateTravelSchema),
     defaultValues: {
@@ -88,27 +91,46 @@ const AddOrUpdateTravelForm = () => {
   const isBothAddressValid =
     form.getValues("destinationAddress") && form.getValues("startingAddress");
 
-  const { execute, isExecuting } = useAction(addOrUpdateTravelAction, {
-    onSuccess: (response) => {
-      if (response.data?.ok) {
-        console.log("SUCCESS");
-        toast.success("Le trajet a bien été ajouté !");
-        addTravel(response.data.travel);
-      }
-    },
-    onError: (response) => {
-      console.log(response);
+  // const { executeAsync, execute, isExecuting } = useAction(
+  //   addOrUpdateTravelAction,
+  //   {
+  //     onSuccess: (response) => {
+  //       console.log({ response33: response });
+  //       if (response.data?.ok) {
+  //         console.log("SUCCESS");
+  //         toast.success("Le trajet a bien été ajouté !");
+  //         addTravel(response.data.travel);
+  //       }
+  //     },
+  //     onError: ({ error }) => {
+  //       console.log({ response343: error });
 
-      if (response.error) {
-        toast.error(response.error.serverError);
-      }
-    },
-  });
+  //       if (error) {
+  //         toast.error(error.serverError);
+  //       }
+  //     },
 
-  function onSubmit(values: z.infer<typeof addOrUpdateTravelSchema>) {
-    console.log({ values });
+  //     onSettled: () => {
+  //       console.log("SUCCESS");
+  //       setIsRequestLoading(false);
+  //     },
+  //   }
+  // );
 
-    execute(values);
+  async function onSubmit(values: z.infer<typeof addOrUpdateTravelSchema>) {
+    setIsRequestLoading(true);
+    await wait(1500);
+    const response = await addOrUpdateTravelAction(values).finally(() =>
+      setIsRequestLoading(false)
+    );
+
+    if (!response.ok || !response.travel) {
+      toast.error(response.error);
+      return;
+    }
+
+    toast.success("Le trajet a bien été ajouté !");
+    addTravel(response.travel);
   }
   return (
     <div>
@@ -238,7 +260,10 @@ const AddOrUpdateTravelForm = () => {
               type="button"
               className="col-span-2"
               onClick={async () => {
-                await getDistanceQuery.refetch();
+                form.trigger();
+                if (form.formState.isValid) {
+                  await getDistanceQuery.refetch();
+                }
               }}
             >
               {getDistanceQuery.isFetching ? (
@@ -304,7 +329,7 @@ const AddOrUpdateTravelForm = () => {
           <Button
             type="submit"
             className="w-full"
-            loader={{ isLoading: isExecuting, text: "Création en cours" }}
+            loader={{ isLoading: isRequestLoading, text: "Création en cours" }}
           >
             <Plus className="mr-2" />
             Créer le trajet

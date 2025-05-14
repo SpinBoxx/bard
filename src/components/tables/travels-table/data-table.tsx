@@ -5,6 +5,8 @@ import {
   ColumnDef,
   type ColumnFiltersState,
   type SortingState,
+  TableState,
+  Updater,
   type VisibilityState,
   flexRender,
   getCoreRowModel,
@@ -29,9 +31,13 @@ import { DataTablePagination } from "./data-table-pagination";
 import { useTravelStore } from "@/stores/use-travels-store";
 import { columns } from "./columns";
 import { DataTableToolbar } from "./data-table-toolbar";
+import { Travel } from "@/types/travel";
 // import { DataTableToolbar } from "./data-table-toolbar";
+interface Props {
+  travels: Travel[];
+}
 
-export function TravelsDataTable() {
+export function TravelsDataTable({ travels }: Props) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -45,18 +51,22 @@ export function TravelsDataTable() {
     },
   ]);
 
-  const { travels } = useTravelStore();
+  const { getTravels } = useTravelStore();
 
   const table = useReactTable({
     data: travels,
     columns: columns,
 
+    initialState: {
+      sorting,
+    },
     state: {
       sorting,
       columnVisibility,
       rowSelection,
       columnFilters,
     },
+    enableSorting: true,
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
     onSortingChange: setSorting,
@@ -69,6 +79,10 @@ export function TravelsDataTable() {
     getFacetedRowModel: getFacetedRowModel(),
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
+
+  React.useEffect(() => {
+    table.setSorting(sorting);
+  }, [travels]);
 
   return (
     <div className="space-y-4">

@@ -42,17 +42,18 @@ export const getDistanceBetweenTwoAddress = createAction
     const { geoApi } = constants.api;
 
     const parsedQuery = {
+      key: VITE_MATRIX_GEO_KEY,
       destinations: destination,
       language: "fr-FR",
       units: "km",
       origins: origin,
-      key: VITE_MATRIX_GEO_KEY,
     };
 
     const queryParams = queryString.stringify(parsedQuery);
 
+    const url = `${geoApi}?${queryParams}`;
     const response = await fetch(
-      `https://cors-anywhere.herokuapp.com/${geoApi}?${queryParams}`,
+      `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
       {
         headers: {
           origin: "*",
@@ -66,7 +67,9 @@ export const getDistanceBetweenTwoAddress = createAction
       );
     }
 
-    const data: GoogleMapsDistanceMatrixResponse = await response.json();
+    const data: GoogleMapsDistanceMatrixResponse = JSON.parse(
+      (await response.json()).contents
+    );
     const calculationStatus = data.rows.at(0)?.elements.at(0)?.status;
 
     if (calculationStatus?.toLowerCase() === "zero_results") {
